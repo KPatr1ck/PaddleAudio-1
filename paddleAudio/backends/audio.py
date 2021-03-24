@@ -195,6 +195,9 @@ def load(file, sr=None,
     else: 
         assert False, 'not implemented error'
         
+    ## 
+    assert (y.ndim == 1 and len(y) > 0) or (y.ndim == 2 and len(y[0]) > 0), 'audio file {} looks empty'.format(file)
+    
     if mono:
         y = to_mono(y,mono_type)
     
