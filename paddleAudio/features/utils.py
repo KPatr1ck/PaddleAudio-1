@@ -1,5 +1,7 @@
 import paddle
 import numpy as np
+
+__all__ = ['randint','rand','weighted_sampling']
 def randint(high,use_paddle = True):
     if use_paddle:
         return int(paddle.randint(0,high=high))

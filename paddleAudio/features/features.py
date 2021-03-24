@@ -1,6 +1,7 @@
 import paddle
 import numpy as np
 import librosa
+__all__ = ['mel_spect','linear_spect','log_spect']
 
 def mel_spect(y,sample_rate=16000,
                 window_size=512,

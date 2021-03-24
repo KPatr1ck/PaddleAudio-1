@@ -1,7 +1,7 @@
 import paddle
 import numpy as np
 from .utils import randint,weighted_sampling
-from backends import *
+from ..backends import depth_convert
 
 __all__ = ['depth_augment','spect_augment','random_crop1d','random_crop2d']
 

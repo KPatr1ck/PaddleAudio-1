@@ -20,9 +20,9 @@ except:
 __norm_types__ = ['linear','gaussian']
 __mono_types__ = ['ch0','ch1','random','average']
 
-__all__ = ['audio_resample','audio_to_mono','audio_depth_convert','audio_normalize','save','load']
+__all__ = ['resample','to_mono','depth_convert','normalize','save','load']
 
-def audio_resample(y,src_sr, target_sr):
+def resample(y,src_sr, target_sr):
     
     assert type(y) == np.ndarray, 'currently only numpy data are supported'
     assert type(src_sr) == int and src_sr > 0 and src_sr <= 48000, 'make sure type(sr) == int and sr > 0 and sr <= 48000,'
@@ -38,7 +38,7 @@ def audio_resample(y,src_sr, target_sr):
 
     assert False, 'requires librosa or resampy to do resampling, pip install resampy'
     
-def audio_to_mono(y,mono_type='average'):
+def to_mono(y,mono_type='average'):
     
     assert type(y) == np.ndarray, 'currently only numpy data are supported'
     
@@ -75,7 +75,7 @@ def audio_to_mono(y,mono_type='average'):
 def __safe_cast__(y,dtype):
     return np.clip(y,np.iinfo(dtype).min,np.iinfo(dtype).max).astype(dtype)
     
-def audio_depth_convert(y,dtype): # convert audio array to target dtype
+def depth_convert(y,dtype): # convert audio array to target dtype
     
     assert type(y) == np.ndarray, 'currently only numpy data are supported'
     
@@ -133,7 +133,7 @@ def sound_file_load(file,offset=None,dtype='int16',duration=None):
        
         return y,sf_desc.samplerate
 
-def audio_normalize(y,norm_type='linear',mul_factor=1.0): 
+def normalize(y,norm_type='linear',mul_factor=1.0): 
     
     assert type(y) == np.ndarray, 'currently only numpy data are supported'
         
@@ -161,7 +161,7 @@ def save(y,sr,file):
     
     if y.dtype not in ['int16','int8']:
         warnings.warn('input data type is {}, saving data to int16 format'.format(y.dtype))
-        yout = audio_bits_convert(y,'int16')
+        yout = depth_convert(y,'int16')
     else:
         yout = y
         
@@ -196,22 +196,22 @@ def load(file, sr=None,
         assert False, 'not implemented error'
         
     if mono:
-        y = audio_to_mono(y,mono_type)
+        y = to_mono(y,mono_type)
     
     if sr is not None and sr != r:
-        y = audio_resample(y,r,sr)
+        y = resample(y,r,sr)
         r = sr
       
     if normalize:
     #    print('before nom',np.max(y))
-        y = audio_normalize(y,norm_type,norm_mul_factor)
+        y = normalize(y,norm_type,norm_mul_factor)
        # print('after norm',np.max(y))
     #plot(y)
     #show()
     if dtype in ['int8','int16'] and (normalize == False or normalize == True and  norm_type == 'guassian') :
-        y = audio_normalize(y,'linear',1.0) # do normalization before converting to target dtype   
+        y = normalize(y,'linear',1.0) # do normalization before converting to target dtype   
         
-    y = audio_depth_convert(y,dtype)
+    y = depth_convert(y,dtype)
     #figure
     #plot(y)
     #show()

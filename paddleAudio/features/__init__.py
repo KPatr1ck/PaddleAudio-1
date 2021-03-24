@@ -1,4 +1,4 @@
 from .features import *
-import augmentation
+from .augmentation import *
 
 
