@@ -20,7 +20,8 @@ except:
 __norm_types__ = ['linear','gaussian']
 __mono_types__ = ['ch0','ch1','random','average']
 
-from ipdb import set_trace
+__all__ = ['audio_resample','audio_to_mono','audio_depth_convert','audio_normalize','save','load']
+
 def audio_resample(y,src_sr, target_sr):
     
     assert type(y) == np.ndarray, 'currently only numpy data are supported'
