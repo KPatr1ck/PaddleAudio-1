@@ -171,7 +171,7 @@ def save(y,sr,file):
 def load(file, sr=None, 
          mono=True, 
          mono_type = 'average', # ch0,ch1,random,average
-         normalize=True,
+         normal=True,
          norm_type='linear',
          norm_mul_factor = 1.0,
          offset=0.0, 
@@ -202,7 +202,7 @@ def load(file, sr=None,
         y = resample(y,r,sr)
         r = sr
       
-    if normalize:
+    if normal:
     #    print('before nom',np.max(y))
         y = normalize(y,norm_type,norm_mul_factor)
        # print('after norm',np.max(y))
