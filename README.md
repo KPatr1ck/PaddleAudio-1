@@ -22,3 +22,5 @@ mel = pa.features.mel_spect(s,r)
 - add dataset support [xiaojie】
 - add models 【audioset sound tagging[yqlai], DCASE classication[xiaojie], ASD[yqlai]，sound classification[xiaojie]】
 - add demos (audio,video demos) [xiaojie]
+- add openL3 support
+
