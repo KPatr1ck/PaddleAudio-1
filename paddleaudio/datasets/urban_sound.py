@@ -22,28 +22,34 @@ from ..utils.download import download_and_decompress
 from ..utils.env import DATA_HOME
 from ..utils.log import logger
 
-__all__ = ['ESC50']
+__all__ = ['UrbanSound8K']
 
 
-class ESC50(AudioClassificationDataset):
+class UrbanSound8K(AudioClassificationDataset):
     """
-    Environment Sound Classification Dataset
+    UrbanSound8K Dataset
     """
 
     archieves = [
         {
-            'url': 'https://github.com/karoldvl/ESC-50/archive/master.zip',
-            'md5': '70aba3bada37d2674b8f6cd5afd5f065',
+            'url': 'https://zenodo.org/record/1203745/files/UrbanSound8K.tar.gz',
+            'md5': '9aa69802bbf37fb986f71ec1483a196e',
         },
     ]
-    meta = os.path.join('ESC-50-master', 'meta', 'esc50.csv')
+    meta = os.path.join('UrbanSound8K', 'metadata', 'UrbanSound8K.csv')
     meta_info = collections.namedtuple('META_INFO',
-                                       ('filename', 'fold', 'target', 'category', 'esc10', 'src_file', 'take'))
-    audio_path = os.path.join('ESC-50-master', 'audio')
-    sample_rate = 44100  # 44.1 khz
-    duration = 5  # 5s
+                                       ('filename', 'fsid', 'start', 'end', 'salience', 'fold', 'class_id', 'label'))
+    audio_path = os.path.join('UrbanSound8K', 'audio')
+    sample_rate = 48000  # 48 khz
+    duration = 4  # 4s
 
     def __init__(self, mode: str = 'train', split: int = 1, feat_type: str = 'raw', **kwargs):
+        files, labels = self._get_data(mode, split)
+        super(UrbanSound8K, self).__init__(files=files,
+                                           labels=labels,
+                                           sample_rate=self.sample_rate,
+                                           feat_type=feat_type,
+                                           **kwargs)
         """
         Ags:
             mode (:obj:`str`, `optional`, defaults to `train`):
@@ -53,14 +59,8 @@ class ESC50(AudioClassificationDataset):
             feat_type (:obj:`str`, `optional`, defaults to `raw`):
                 It identifies the feature type that user wants to extrace of an audio file.
         """
-        files, labels = self._get_data(mode, split)
-        super(ESC50, self).__init__(files=files,
-                                    labels=labels,
-                                    sample_rate=self.sample_rate,
-                                    feat_type=feat_type,
-                                    **kwargs)
 
-    def _get_meta_info(self) -> List[collections.namedtuple]:
+    def _get_meta_info(self):
         ret = []
         with open(os.path.join(DATA_HOME, self.meta), 'r') as rf:
             read_header = False
@@ -81,13 +81,13 @@ class ESC50(AudioClassificationDataset):
         files = []
         labels = []
         for sample in meta_info:
-            filename, fold, target, _, _, _, _ = sample
+            filename, _, _, _, _, fold, target, _ = sample
             if mode == 'train' and int(fold) != split:
-                files.append(os.path.join(DATA_HOME, self.audio_path, filename))
+                files.append(os.path.join(DATA_HOME, self.audio_path, f'fold{fold}', filename))
                 labels.append(int(target))
 
             if mode != 'train' and int(fold) == split:
-                files.append(os.path.join(DATA_HOME, self.audio_path, filename))
+                files.append(os.path.join(DATA_HOME, self.audio_path, f'fold{fold}', filename))
                 labels.append(int(target))
 
         return files, labels

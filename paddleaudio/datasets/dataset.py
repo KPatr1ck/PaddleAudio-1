@@ -12,14 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Tuple, Optional, Union
+from typing import List, Tuple
 
 import os
+import librosa
 import numpy as np
+from tqdm import tqdm
 
 import paddle
-import librosa
 from ..features import mel_spect, linear_spect, log_spect
+from ..utils.log import logger
 
 
 class AudioClassificationDataset(paddle.io.Dataset):
@@ -33,12 +35,15 @@ class AudioClassificationDataset(paddle.io.Dataset):
         'log_spect': log_spect,
     }
 
-    def __init__(self, 
-                 files: List[str], 
-                 labels: List[int], 
-                 sample_rate: int, 
-                 feat_type: str = 'raw', 
-                 **kwargs):
+    def __init__(self, files: List[str], labels: List[int], sample_rate: int, feat_type: str = 'raw', **kwargs):
+        """
+        Ags:
+            files (:obj:`List[str]`): A list of absolute path of audio files.
+            labels (:obj:`List[int]`): Labels of audio files.
+            sample_rate (:obj:`int`): Sample rate of audio files.
+            feat_type (:obj:`str`, `optional`, defaults to `raw`):
+                It identifies the feature type that user wants to extrace of an audio file.
+        """
         super(AudioClassificationDataset, self).__init__()
 
         if feat_type not in self._feat_func.keys():
@@ -50,14 +55,15 @@ class AudioClassificationDataset(paddle.io.Dataset):
         self.labels = labels
         self.records = self._convert_to_records(sample_rate, **kwargs)
 
-    def _get_data(self, input_file: str) -> Tuple[List[str], List[int]]:
+    def _get_data(self, input_file: str):
         raise NotImplementedError
 
     def _convert_to_records(self, sample_rate: int, **kwargs) -> List[dict]:
         records = []
         feat_func = self._feat_func[self.feat_type]
 
-        for file, label in zip(self.files, self.labels):
+        logger.info('Start extracting features from audio files.')
+        for file, label in tqdm(zip(self.files, self.labels), total=len(self.files)):
             record = {}
             waveform, _ = librosa.load(file, sr=sample_rate)
             record['feat'] = feat_func(waveform, **kwargs) if feat_func else waveform

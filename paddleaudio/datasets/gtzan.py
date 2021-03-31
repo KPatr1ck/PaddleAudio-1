@@ -16,45 +16,51 @@ from typing import List, Tuple
 
 import os
 import collections
+import random
 
 from .dataset import AudioClassificationDataset
 from ..utils.download import download_and_decompress
 from ..utils.env import DATA_HOME
 from ..utils.log import logger
 
-__all__ = ['ESC50']
+__all__ = ['GTZAN']
 
 
-class ESC50(AudioClassificationDataset):
+class GTZAN(AudioClassificationDataset):
     """
-    Environment Sound Classification Dataset
+    GTZAN Dataset
     """
 
     archieves = [
         {
-            'url': 'https://github.com/karoldvl/ESC-50/archive/master.zip',
-            'md5': '70aba3bada37d2674b8f6cd5afd5f065',
+            'url': 'http://opihi.cs.uvic.ca/sound/genres.tar.gz',
+            'md5': '5b3d6dddb579ab49814ab86dba69e7c7',
         },
     ]
-    meta = os.path.join('ESC-50-master', 'meta', 'esc50.csv')
-    meta_info = collections.namedtuple('META_INFO',
-                                       ('filename', 'fold', 'target', 'category', 'esc10', 'src_file', 'take'))
-    audio_path = os.path.join('ESC-50-master', 'audio')
-    sample_rate = 44100  # 44.1 khz
-    duration = 5  # 5s
+    label_list = ['blues', 'classical', 'country', 'disco', 'hiphop', 'jazz', 'metal', 'pop', 'reggae', 'rock']
+    meta = os.path.join('genres', 'input.mf')
+    meta_info = collections.namedtuple('META_INFO', ('file_path', 'label'))
+    audio_path = 'genres'
+    sample_rate = 22050  # 44.1 khz
+    duration = 30  # 5s
 
-    def __init__(self, mode: str = 'train', split: int = 1, feat_type: str = 'raw', **kwargs):
+    def __init__(self, mode='train', seed=0, n_folds=5, split=1, feat_type='raw', **kwargs):
         """
         Ags:
             mode (:obj:`str`, `optional`, defaults to `train`):
                 It identifies the dataset mode (train or dev).
+            seed (:obj:`int`, `optional`, defaults to 0):
+                Set the random seed to shuffle samples.
+            n_folds (:obj:`int`, `optional`, defaults to 5):
+                Split the dataset into n folds. 1 fold for dev dataset and n-1 for train dataset.
             split (:obj:`int`, `optional`, defaults to 1):
                 It specify the fold of dev dataset.
             feat_type (:obj:`str`, `optional`, defaults to `raw`):
                 It identifies the feature type that user wants to extrace of an audio file.
         """
-        files, labels = self._get_data(mode, split)
-        super(ESC50, self).__init__(files=files,
+        assert split <= n_folds, f'The selected split should not be larger than n_fold, but got {split} > {n_folds}'
+        files, labels = self._get_data(mode, seed, n_folds, split)
+        super(GTZAN, self).__init__(files=files,
                                     labels=labels,
                                     sample_rate=self.sample_rate,
                                     feat_type=feat_type,
@@ -63,31 +69,34 @@ class ESC50(AudioClassificationDataset):
     def _get_meta_info(self) -> List[collections.namedtuple]:
         ret = []
         with open(os.path.join(DATA_HOME, self.meta), 'r') as rf:
-            read_header = False
             for line in rf.readlines():
-                if not read_header:
-                    read_header = True
-                    continue
-                ret.append(self.meta_info(*line.strip().split(',')))
+                ret.append(self.meta_info(*line.strip().split('\t')))
         return ret
 
-    def _get_data(self, mode: str, split: int) -> Tuple[List[str], List[int]]:
+    def _get_data(self, mode, seed, n_folds, split) -> Tuple[List[str], List[int]]:
         if not os.path.isdir(os.path.join(DATA_HOME, self.audio_path)) or \
             not os.path.isfile(os.path.join(DATA_HOME, self.meta)):
             download_and_decompress(self.archieves, DATA_HOME)
 
         meta_info = self._get_meta_info()
+        random.seed(seed)  # shuffle samples to split data
+        random.shuffle(meta_info)  # make sure using the same seed to create train and dev dataset
 
         files = []
         labels = []
-        for sample in meta_info:
-            filename, fold, target, _, _, _, _ = sample
+        n_samples_per_fold = len(meta_info) // n_folds
+        for idx, sample in enumerate(meta_info):
+            file_path, label = sample
+            filename = os.path.basename(file_path)
+            target = self.label_list.index(label)
+            fold = idx // n_samples_per_fold + 1
+
             if mode == 'train' and int(fold) != split:
-                files.append(os.path.join(DATA_HOME, self.audio_path, filename))
-                labels.append(int(target))
+                files.append(os.path.join(DATA_HOME, self.audio_path, label, filename))
+                labels.append(target)
 
             if mode != 'train' and int(fold) == split:
-                files.append(os.path.join(DATA_HOME, self.audio_path, filename))
-                labels.append(int(target))
+                files.append(os.path.join(DATA_HOME, self.audio_path, label, filename))
+                labels.append(target)
 
         return files, labels
