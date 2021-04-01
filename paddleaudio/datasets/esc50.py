@@ -63,11 +63,7 @@ class ESC50(AudioClassificationDataset):
     def _get_meta_info(self) -> List[collections.namedtuple]:
         ret = []
         with open(os.path.join(DATA_HOME, self.meta), 'r') as rf:
-            read_header = False
-            for line in rf.readlines():
-                if not read_header:
-                    read_header = True
-                    continue
+            for line in rf.readlines()[1:]:
                 ret.append(self.meta_info(*line.strip().split(',')))
         return ret
 
