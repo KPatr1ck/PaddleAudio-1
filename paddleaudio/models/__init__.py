@@ -1,6 +1,6 @@
-# Copyright (c) 2020  PaddlePaddle Authors. All Rights Reserved.
+# Copyright (c) 2021 PaddlePaddle Authors. All Rights Reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the "License"
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
@@ -12,14 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .esc50 import ESC50
-from .urban_sound import UrbanSound8K
-from .gtzan import GTZAN
-from .dcase import TAUUrbanAcousticScenes_2020_Mobile_DevelopmentSet
+from .PANNs import CNN14, CNN10, CNN6
 
 __all__ = [
-    'ESC50',
-    'UrbanSound8K',
-    'GTZAN',
-    'TAUUrbanAcousticScenes_2020_Mobile_DevelopmentSet',
+    'CNN14',
+    'CNN10',
+    'CNN6',
 ]
