@@ -43,7 +43,7 @@ def linear_spect(y,sample_rate=16000,
     
 
     s = librosa.stft(y,n_fft=window_size,
-                               hop_length=hop_size,
+                               hop_length=hop_length,
                                win_length=window_size,
                                window=window,
                                center=center, pad_mode=pad_mode)
@@ -58,7 +58,7 @@ def log_spect(y,sample_rate=16000,
     
 
     s = librosa.stft(y,n_fft=window_size,
-                               hop_length=hop_size,
+                               hop_length=hop_length,
                                win_length=window_size,
                                window=window,
                                center=center, pad_mode=pad_mode)

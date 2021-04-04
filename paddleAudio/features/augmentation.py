@@ -66,7 +66,7 @@ def random_crop2d(s,crop_len,tempo_axis = 0): # random crop according to tempora
     if type(s) == np.ndarray:
         sli = [slice(None) for i in range(s.ndim)]
         sli[tempo_axis] = slice(idx, idx+crop_len)
-        out = s[sli]
+        out = s[tuple(sli)]
     else:
         out = paddle.index_select(s,paddle.Tensor(np.array([i for i in range(idx,idx+crop_len)])),axis=tempo_axis)
     return out
