@@ -17,10 +17,10 @@ mel = pa.features.mel_spect(s,r)
 ```
 ## to do 
 
-- Add mixup loss [yqlai]
-- add sound effects(tempo, mag, etc) , sox supports[yqlai]
-- add dataset support [xiaojie】
-- add models 【audioset sound tagging[yqlai], DCASE classication[xiaojie], ASD[yqlai]，sound classification[xiaojie]】
-- add demos (audio,video demos) [xiaojie]
+
+- add sound effects(tempo, mag, etc) , sox supports
+- add dataset support
+- add models DCASE classication ASD，sound classification
+- add demos (audio,video demos) 
 - add openL3 support
 
