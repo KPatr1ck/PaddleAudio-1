@@ -11,17 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from typing import List, Dict
+import sys
 
-import os
-import ast
+sys.path.append('/ssd3/chenxiaojie06/PaddleAudio')
+
 import argparse
-import numpy as np
-import librosa
+import ast
+import os
+from typing import List
 
+import librosa
+import numpy as np
 import paddle
-from paddleaudio.models import CNN14
+
 from paddleaudio.features import mel_spect
+from paddleaudio.models import CNN14
+from paddleaudio.utils.log import logger
 
 parser = argparse.ArgumentParser(__doc__)
 # features
@@ -36,9 +41,6 @@ parser.add_argument("--wav", type=str, required=True, help="Audio file to infer.
 parser.add_argument('--sample_duration', type=float, default=0.5)  # 2s
 parser.add_argument('--hop_duration', type=float, default=0.1)  # 0.3s
 
-parser.add_argument("--topk", type=int, default=10, help="Show top k results of audioset labels.")
-parser.add_argument("--smooth", type=ast.literal_eval, default=True, help="Posterior smoothing.")
-parser.add_argument("--smooth_size", type=int, default=5, help="Window size of smoothing.")
 parser.add_argument("--output_dir", type=str, default='./output_dir')
 parser.add_argument("--use_gpu",
                     type=ast.literal_eval,
@@ -49,6 +51,10 @@ args = parser.parse_args()
 
 
 def split(waveform: np.ndarray, win_size: int, hop_size: int):
+    """
+    Split into N audios.
+    N is decided by win_size and hop_size.
+    """
     assert isinstance(waveform, np.ndarray)
     ret = []
     for i in range(0, len(waveform), hop_size):
@@ -60,6 +66,9 @@ def split(waveform: np.ndarray, win_size: int, hop_size: int):
 
 
 def batchify(data: List[List[float]], batch_size: int):
+    """
+    Extract features from waveforms and create batches.
+    """
     examples = []
     for waveform in data:
         feat = mel_spect(
@@ -84,32 +93,6 @@ def batchify(data: List[List[float]], batch_size: int):
         yield one_batch
 
 
-def smooth(results: np.ndarray, win_size: int):
-    """
-    Execute posterior smoothing in-place.
-    """
-    for i in range(len(results) - 1, -1, -1):
-        if i < win_size - 1:
-            left = 0
-        else:
-            left = i + 1 - win_size
-        results[i] = np.sum(results[left:i + 1], axis=0) / (i - left + 1)
-
-
-def show_topk(k: int, label_map: Dict, result: np.ndarray, filename: str = None):
-    result = np.asarray(result)
-    topk_idx = (-result).argsort()[:k]
-
-    msg = ''
-    if filename is not None:
-        msg = f'[{filename}]\n'
-
-    for idx in topk_idx:
-        label, score = label_map[idx], result[idx]
-        msg += f'{label}: {score}\n'
-    print(msg)
-
-
 def predict(model, data: List[List[float]], batch_size: int = 1, use_gpu: bool = False):
 
     paddle.set_device('gpu') if use_gpu else paddle.set_device('cpu')
@@ -129,24 +112,14 @@ def predict(model, data: List[List[float]], batch_size: int = 1, use_gpu: bool =
 
 
 if __name__ == '__main__':
-
-    label_file = './assets/audioset_labels.txt'
-    label_map = {}
-    with open(label_file, 'r') as f:
-        for i, l in enumerate(f.readlines()):
-            label_map[i] = l.strip()
-
     model = CNN14(extract_embedding=False, checkpoint=args.checkpoint)
     waveform = librosa.load(args.wav, sr=args.sr)[0]
     data = split(waveform, int(args.sample_duration * args.sr), int(args.hop_duration * args.sr))
     results = predict(model, data, batch_size=8, use_gpu=args.use_gpu)
 
-    # smoothing
-    if args.smooth:
-        smooth(results, win_size=args.smooth_size)
-
-    # save results to file
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
     time = np.arange(0, len(waveform), int(args.hop_duration * args.sr))
-    np.savez(os.path.join(args.output_dir, f'audioset_tagging_sr_{args.sr}.npz'), time=time, scores=results)
+    output_file = os.path.join(args.output_dir, f'audioset_tagging_sr_{args.sr}.npz')
+    np.savez(output_file, time=time, scores=results)
+    logger.info(f'Saved tagging results to {output_file}')

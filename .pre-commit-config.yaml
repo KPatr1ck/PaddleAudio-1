@@ -18,6 +18,18 @@
     -   id: check-symlinks
     -   id: check-added-large-files
 
+-   repo: https://github.com/pycqa/isort
+    rev: 5.8.0
+    hooks:
+    -   id: isort
+        name: isort (python)
+    -   id: isort
+        name: isort (cython)
+        types: [cython]
+    -   id: isort
+        name: isort (pyi)
+        types: [pyi]
+
 -   repo: local
     hooks:
     -   id: flake8
