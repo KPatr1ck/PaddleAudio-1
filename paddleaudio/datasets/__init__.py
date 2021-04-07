@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .esc50 import ESC50
-from .urban_sound import UrbanSound8K
-from .gtzan import GTZAN
 from .dcase import TAUUrbanAcousticScenes_2020_Mobile_DevelopmentSet
+from .esc50 import ESC50
+from .gtzan import GTZAN
+from .urban_sound import UrbanSound8K
 
 __all__ = [
     'ESC50',

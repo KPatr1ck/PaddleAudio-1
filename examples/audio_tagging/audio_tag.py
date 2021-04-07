@@ -35,8 +35,8 @@ parser.add_argument('--fmin', type=int, default=50)
 parser.add_argument('--fmax', type=int, default=14000)
 # waveform
 parser.add_argument("--wav", type=str, required=True, help="Audio file to infer.")
-parser.add_argument('--sample_duration', type=float, default=0.5)  # 2s
-parser.add_argument('--hop_duration', type=float, default=0.1)  # 0.3s
+parser.add_argument('--sample_duration', type=float, default=1.0)  # 1s
+parser.add_argument('--hop_duration', type=float, default=0.3)  # 0.3s
 
 parser.add_argument("--output_dir", type=str, default='./output_dir')
 parser.add_argument("--use_gpu",
@@ -116,7 +116,7 @@ if __name__ == '__main__':
 
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir)
-    time = np.arange(0, len(waveform), int(args.hop_duration * args.sr))
+    time = np.arange(0, 1, int(args.hop_duration * args.sr) / len(waveform))
     output_file = os.path.join(args.output_dir, f'audioset_tagging_sr_{args.sr}.npz')
     np.savez(output_file, time=time, scores=results)
     logger.info(f'Saved tagging results to {output_file}')

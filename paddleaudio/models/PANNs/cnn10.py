@@ -18,8 +18,8 @@ import paddle
 import paddle.nn as nn
 import paddle.nn.functional as F
 
-from .conv import ConvBlock
 from ...utils.log import logger
+from .conv import ConvBlock
 
 
 class CNN10(nn.Layer):
