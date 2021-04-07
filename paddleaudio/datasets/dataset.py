@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from typing import List, Tuple
 
-import os
 import librosa
 import numpy as np
+import paddle
 from tqdm import tqdm
 
-import paddle
-from ..features import mel_spect, linear_spect, log_spect
+from ..features import linear_spect, log_spect, mel_spect
 from ..utils.log import logger
 
 

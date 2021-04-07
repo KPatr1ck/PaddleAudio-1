@@ -12,16 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
+import os
+import random
 from typing import List, Tuple
 
-import os
-import collections
-import random
-
-from .dataset import AudioClassificationDataset
 from ..utils.download import download_and_decompress
 from ..utils.env import DATA_HOME
 from ..utils.log import logger
+from .dataset import AudioClassificationDataset
 
 __all__ = ['GTZAN']
 

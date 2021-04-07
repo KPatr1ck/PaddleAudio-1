@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .cnn14 import CNN14
-from .cnn10 import CNN10
 from .cnn6 import CNN6
+from .cnn10 import CNN10
+from .cnn14 import CNN14

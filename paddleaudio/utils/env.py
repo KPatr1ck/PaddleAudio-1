@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 '''
 This module is used to store environmental variables in PaddleAudio.
 PPAUDIO_HOME     -->  the root directory for storing PaddleAudio related data. Default to ~/.paddleaudio. Users can change the
@@ -34,9 +33,7 @@ def _get_ppaudio_home():
             if os.path.isdir(home_path):
                 return home_path
             else:
-                raise RuntimeError(
-                    'The environment variable PPAUDIO_HOME {} is not a directory.'.
-                    format(home_path))
+                raise RuntimeError('The environment variable PPAUDIO_HOME {} is not a directory.'.format(home_path))
         else:
             return home_path
     return os.path.join(_get_user_home(), '.paddleaudio')
