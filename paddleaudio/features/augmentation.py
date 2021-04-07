@@ -11,9 +11,44 @@ def depth_augment(y,choices=['int8','int16'],probs = [0.5,0.5]):
     k = weighted_sampling(probs)
     #k = randint(len(choices))
     src_depth = y.dtype
-    y1 = audio_depth_convert(y,choices[k])
-    y2 = audio_depth_convert(y1,src_depth)
+    y1 = depth_convert(y,choices[k])
+    y2 = depth_convert(y1,src_depth)
     return y2    
+
+def adaptive_spect_augment(spect,tempo_axis = 0,level=0.1):
+    
+    assert spect.ndim == 2., 'only supports 2d tensor or numpy array'
+    if tempo_axis == 0:
+        nt,nf= spect.shape
+    else:
+        nf,nt= spect.shape
+    
+    time_mask_width = int(nt * level * 0.5)
+    freq_mask_width = int(nf * level * 0.5)
+    
+    
+    num_time_mask = int(10*level)
+    num_freq_mask = int(10*level)
+
+   # num_zeros = num_time_mask*time_mask_width*nf + num_freq_mask*freq_mask_width*nt
+   # factor = (nt*nf)/(nt*nf-num_zeros)
+
+    if tempo_axis == 0:
+        for i in range(num_time_mask):
+            start = randint(nt-time_mask_width)
+            spect[start:start+time_mask_width,:]=0
+        for i in range(num_freq_mask):
+            start = randint(nf-freq_mask_width)
+            spect[:,start:start+freq_mask_width]=0
+    else:
+         for i in range(num_time_mask):
+            start = randint(nt-time_mask_width)
+            spect[:,start:start+time_mask_width]=0
+         for i in range(num_freq_mask):
+            start = randint(nf-freq_mask_width)
+            spect[start:start+freq_mask_width,:]=0
+
+    return spect
 
 def spect_augment(spect,tempo_axis = 0,max_time_mask = 3,
         max_freq_mask = 3,
@@ -52,11 +87,11 @@ def spect_augment(spect,tempo_axis = 0,max_time_mask = 3,
 
     return spect
 
-def random_crop1d(y):
+def random_crop1d(y,crop_len):
     assert y.ndim == 1, 'only accept 1d tensor or numpy array'
     n = len(y)
-    idx = randint(n-sample_len)
-    return y[idx:idx+sample_len]
+    idx = randint(n-crop_len)
+    return y[idx:idx+crop_len]
 
 
 def random_crop2d(s,crop_len,tempo_axis = 0): # random crop according to temporal direction

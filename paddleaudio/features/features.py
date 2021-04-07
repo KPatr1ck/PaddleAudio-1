@@ -3,6 +3,7 @@ import numpy as np
 import librosa
 __all__ = ['mel_spect','linear_spect','log_spect']
 
+#mel 
 def mel_spect(y,sample_rate=16000,
                 window_size=512,
                 hop_length=320,
@@ -15,6 +16,13 @@ def mel_spect(y,sample_rate=16000,
                 ref = 1.0,
                 amin = 1e-10,
                 top_db = None):
+    
+    """ compute mel-spectrogram from input waveform y. 
+    Create a Mel filter-bank.
+    This produces a linear transformation matrix to project 
+    FFT bins onto Mel-frequency bins.
+    
+    """
     
 
     s = librosa.stft(y,n_fft=window_size,
@@ -30,7 +38,6 @@ def mel_spect(y,sample_rate=16000,
                 fmin=fmin, fmax=fmax)
     mel = np.matmul(melW,power)
     db = librosa.power_to_db(mel,ref=ref,amin=amin,top_db=None)
-    #db = db.transpose()
     return db
 
 

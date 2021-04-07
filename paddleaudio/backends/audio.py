@@ -1,5 +1,6 @@
 import numpy as np
 import warnings
+from scipy.io import wavfile
 try:
     import librosa
     has_librosa = True
@@ -148,7 +149,7 @@ def normalize(y,norm_type='linear',mul_factor=1.0):
         amean = np.mean(y)
         mul_factor = max(0.01,min(mul_factor,0.2))
         astd = np.std(y)
-        y = mul_factor*(y - amean)/(astd+eps)
+        y = mul_factor*(y - amean)/(astd+__eps__)
     else:
          assert False, 'not implemented error, norm_type should be in {}'.format(__norm_types__)
             
