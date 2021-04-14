@@ -55,7 +55,13 @@ def mel_spect(y,
     return db
 
 
-def linear_spect(y, sample_rate=16000, window_size=512, hop_length=320, window='hann', center=True, pad_mode='reflect'):
+def linear_spect(y, sample_rate=16000, 
+                 window_size=512,
+                 hop_length=320,
+                 window='hann',
+                 center=True, 
+                 pad_mode='reflect',
+                 power = 2):
 
     s = librosa.stft(y,
                      n_fft=window_size,
@@ -65,10 +71,17 @@ def linear_spect(y, sample_rate=16000, window_size=512, hop_length=320, window='
                      center=center,
                      pad_mode=pad_mode)
 
-    return np.abs(s)[:-1, :]  # remove
+    return np.abs(s)**power  
 
 
-def log_spect(y, sample_rate=16000, window_size=512, hop_length=320, window='hann', center=True, pad_mode='reflect'):
+def log_spect(y, sample_rate=16000,
+              window_size=512, 
+              hop_length=320, 
+              window='hann', 
+              center=True,
+              pad_mode='reflect',
+              power = 2.0,
+              offset = 1.0):
 
     s = librosa.stft(y,
                      n_fft=window_size,
@@ -76,7 +89,12 @@ def log_spect(y, sample_rate=16000, window_size=512, hop_length=320, window='han
                      win_length=window_size,
                      window=window,
                      center=center,
-                     pad_mode=pad_mode)
-    s = np.abs(s)[:-1, :]
+                     pad_mode=pad_mode,
+                   )
+    
+    s = np.abs(s)**power
 
-    return np.log(1 + s)  # remove
+    return np.log(offset + s)  # remove
+
+
+
