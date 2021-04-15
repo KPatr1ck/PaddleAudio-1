@@ -18,8 +18,6 @@ parser.add_argument('--mel_bins', type=int, required=False,default=128)
 parser.add_argument('--hop_length', type=int, required=False,default=640) #20ms
 parser.add_argument('--fmin', type=int, required=False,default=50) #25ms
 parser.add_argument('--fmax', type=int, required=False,default=16000) #25ms
-parser.add_argument('--skip_existed', type=int, required=False,default=1) #25ms
-
 args = parser.parse_args()
 #args.wav_h5_file = '/ssd2/laiyongquan/audioset/h5/audioset_unblance_group28.h5'
 
@@ -39,9 +37,6 @@ for f in h5_files:
     print(f'processing {f}')
     dst_file = os.path.join(dst_folder,f.split('/')[-1])
     print(f'target file {dst_file}')
-    if args.skip_existed!=0 and os.path.exists(dst_file):
-        print(f'skipped file {f}')
-        continue
     assert not os.path.exists(dst_file), f'target file {dst_file} existed'
     src_h5 = h5py.File(f)
     dst_h5 = h5py.File(dst_file,"w")
