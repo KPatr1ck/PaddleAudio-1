@@ -41,8 +41,10 @@ __all__ = ['resample', 'to_mono', 'depth_convert', 'normalize', 'save', 'load']
 
 
 def resample(y, src_sr, target_sr):
-    
-    warnings.warn(f'Using resampy to {src_sr}=>{target_sr}. This function is pretty slow, we recommend to process audio using ffmpeg')
+
+    warnings.warn(
+        f'Using resampy to {src_sr}=>{target_sr}. This function is pretty slow, we recommend to process audio using ffmpeg'
+    )
     assert type(y) == np.ndarray, 'currently only numpy data are supported'
     assert type(
         src_sr) == int and src_sr > 0 and src_sr <= 48000, 'make sure type(sr) == int and sr > 0 and sr <= 48000,'
